@@ -1,0 +1,27 @@
+<h1>Environments</h1>
+
+<p>▶ uname -a<br />
+Linux ubuntu 5.4.0-66-generic #74-Ubuntu SMP Wed Jan 27 22:54:38 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux</p>
+
+<p>▶ lsb_release -a<br />
+No LSB modules are available.<br />
+Distributor ID: Ubuntu<br />
+Description:    Ubuntu 20.04.2 LTS<br />
+Release:        20.04<br />
+Codename:       focal</p>
+
+<ul>
+<li>I could see processes dangling when I checked <code>top</code> command</li>
+<li>I could see the container program (command) was not even starting</li>
+</ul>
+
+<pre class="lang-yaml prettyprint-override"><code>services:
+
+  test:
+    build:
+      context: ./test
+    command: ash -c &quot;date&quot;
+</code></pre>
+<h1>Dockerfile</h1>
+<pre><code>FROM alpine:latest
+</code></pre>

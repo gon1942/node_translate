@@ -1,0 +1,14 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 5
+    },
+    "auditLog": "/home/hamonikr/linuxKnowledge/translate_knowledge/logs/.d3eb598dd246aef9fbf1ab3adfc98a8700f60dc3-audit.json",
+    "files": [
+        {
+            "date": 1599198672865,
+            "name": "/home/hamonikr/linuxKnowledge/translate_knowledge/logs/papago.log.2020-09-04",
+            "hash": "7d832d4ae7ccb985a0a75abb868654e2"
+        }
+    ]
+}

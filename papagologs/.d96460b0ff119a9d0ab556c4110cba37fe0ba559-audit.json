@@ -1,0 +1,34 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 5
+    },
+    "auditLog": "/home/hamonikr/linuxKnowledge/translate_knowledge/papagologs/.d96460b0ff119a9d0ab556c4110cba37fe0ba559-audit.json",
+    "files": [
+        {
+            "date": 1625814966138,
+            "name": "/home/hamonikr/linuxKnowledge/translate_knowledge/papagologs/papago.log.2021-07-09",
+            "hash": "efe51ba70c367cb11bc5c1b5226fe0ab"
+        },
+        {
+            "date": 1626333079308,
+            "name": "/home/hamonikr/linuxKnowledge/translate_knowledge/papagologs/papago.log.2021-07-15",
+            "hash": "005336c629d2e613b863f989d739fa15"
+        },
+        {
+            "date": 1626942716122,
+            "name": "/home/hamonikr/linuxKnowledge/translate_knowledge/papagologs/papago.log.2021-07-22",
+            "hash": "463ae612415c4e00837ff98d3a197432"
+        },
+        {
+            "date": 1627007987385,
+            "name": "/home/hamonikr/linuxKnowledge/translate_knowledge/papagologs/papago.log.2021-07-23",
+            "hash": "393ea9adfb07bb2c9119732c66a82940"
+        },
+        {
+            "date": 1627370377043,
+            "name": "/home/hamonikr/linuxKnowledge/translate_knowledge/papagologs/papago.log.2021-07-27",
+            "hash": "4c7082efc5fa8a4a924d197af126dcbd"
+        }
+    ]
+}

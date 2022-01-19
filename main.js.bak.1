@@ -1,0 +1,214 @@
+const zlib = require("zlib");
+const https = require('https');
+const fs = require('fs');
+
+var sleep = require('sleep'); 
+
+const Poller = require('./Poller');
+const pg = require('pg');
+const R = require('ramda');
+var request = require('request');
+
+
+const cs = 'postgres://ryan:exitem08@192.168.0.2:5432/ryan';
+
+const client = new pg.Client(cs);
+client.connect();
+
+var moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault("Asia/Seoul");
+//var date = moment().format('YYYY-MM-DD HH:mm:ss');
+
+
+let someCallBack = function (pagecnt, questionCnt, answersCnt, totalCnt){
+	console.log('call back data is ' + questionCnt);
+	console.log('call back data is ' + answersCnt);
+	console.log('call back data is ' + pagecnt);
+	console.log('call back totalCnt data is ' + Math.ceil(totalCnt/5));
+
+};
+
+function sleep(time, callback) {
+    var stop = new Date().getTime();
+    while(new Date().getTime() < stop + time) {
+        ;
+    }
+    callback();
+}
+
+
+const getRowsCntData = function (){
+	const sql = 'select count(*) from tbl_stack_data';
+        //const values = [key.owner, key.question_id, answersObjCnt, key.link, key.title, key.body];
+
+        //client.query(sql, values, (err, res) => {
+        client.query(sql, (err, ret) => {
+               if (err) {
+                       console.log(err.stack);
+               } else {
+		       //total rows count
+		       console.log("get data === "+ JSON.stringify(ret.rows[0].count));
+               }
+        });
+
+}
+//getRowsCntData( );
+
+
+
+const getRowsData = function (){
+        const sql = 'select *  from tbl_stack_data order by seq asc limit 4 offset 0';
+        //const values = [key.owner, key.question_id, answersObjCnt, key.link, key.title, key.body];
+
+        //client.query(sql, values, (err, res) => {
+        client.query(sql, (err, ret) => {
+               if (err) {
+                       console.log(err.stack);
+               } else {
+
+                       	//total rows count
+		       	var bodyData = ret.rows[0].body;
+		       	var bodyDataSplit = bodyData.split("<p>");
+		       	//console.log("row cnt is ::: "+ bodyDataSplit.length);
+		       
+		        var a = translateAction(ret.rows);
+		       console.log("a================++++++"+ a);
+		       	//for (var item in bodyDataSplit){
+			//	console.log(item +"======>" + bodyDataSplit[item]);
+			//	var aTagChk = bodyDataSplit.indexOf("<a");
+			//	var imgTagChk = item.index
+			//	console.log("c=-===="+ bodyDataSplit[item].indexOf("\<a"));
+			//}
+			
+		       
+               }
+        });
+
+}
+getRowsData( );
+
+//const translateAction = async( rowsData ) => {
+async function translateAction(rowsData){
+
+	var bodyDataSplit = rowsData[0].body.split("<p>");
+	//console.log("b======++++"+ JSON.stringify(bodyDataSplit));
+ 	var tmpryan = "";	
+	for (var item in bodyDataSplit){
+	        var aTagChk = bodyDataSplit.indexOf("<a");
+	        var imgTagChk = bodyDataSplit[item].indexOf("\<a");
+
+		if( aTagChk < 0 && imgTagChk < 0 && bodyDataSplit[item].length > 0){
+			//console.log("a---" + item+"===="+ bodyDataSplit[item].length);
+			//getRequestTranslatePapago( bodyDataSplit[item], getRequestCallBack);
+			tmpryan += await getRequestTranslateGoogle(bodyDataSplit[item], getRequestCallBack);
+
+		}
+	}
+	console.log("===ret===" + tmpryan);
+	return tmpryan;
+
+}
+
+
+// translation] google 
+//const getRequestTranslateGoogle = function ( data,  getRequestCallBack ){
+function getRequestTranslateGoogle( data,  getRequestCallBack ){
+	return new Promise(function(resolve, reject){
+	
+		// version 1
+		var queryText = data.split("</p");
+		var urlGoogle = "https://translation.googleapis.com/language/translate/v2?q="+queryText+"&source=&target=ko&model=nmt&key=AIzaSyDbLHlxeb4XzDtSj_uPoFu4D1w1qPvPKEM"
+		var gunzip = require('zlib').createGunzip();
+		var options = {
+			host: 'translation.googleapis.com',
+		    	path: '/language/translate/v2?q='+encodeURI(queryText[0])+'&source=&target=ko&model=nmt&key=AIzaSyDbLHlxeb4XzDtSj_uPoFu4D1w1qPvPKEM',
+			headers : {
+		        //    'Authorization' : 'Basic VHJhZasfasNWEWFScsdfsNCdXllcjE6dHJhZGVjYXJk',
+		            'Content-Type' : 'application/json; charset=UTF=8',
+		            'Accept-Encoding' : 'gzip,deflate,sdch'
+		        }
+		};
+		
+		https.get(options, function(res) {
+			var body = '';
+		  	res.pipe(gunzip);
+		  	gunzip.on('data', function (data) {
+		      		body += data;
+		  	});
+		  	gunzip.on('end', function() {
+				var jsonData = JSON.parse(body);
+				var jsonTransData = JSON.stringify(jsonData.data.translations[0].translatedText);
+				//console.log("====>"+ jsonTransData.replace(/"/gi, ""));
+				resolve("<p>" + jsonTransData.replace(/"/gi, "")+"</p>");
+		  	});
+		});
+
+		// version 2
+		//const translate = require('@vitalets/google-translate-api');
+        	//var queryText = data.split("</p");
+        	//var sourceLanguage = "en";
+        	//var targetLanguage = "ko";
+
+        	//console.log("text is ::: " + queryText[0]);
+		//
+		//translate(queryText[0], {to: 'ko'}).then(res => {
+		//    console.log(res.text);
+		//    //=> I speak English
+		//    //console.log(res.from.language.iso);
+		//    //=> nl
+		//}).catch(err => {
+		//    console.error(err);
+		//});
+	});
+
+}
+
+
+// translation] naver
+let client_id = 'lXcYqHZGWz8A0zEy5_00';
+let client_secret = '0HejW2Rynn';
+let url = "https://openapi.naver.com/v1/papago/n2mt";
+let getRequestCallBack = function (pagecnt, questionCnt, answersCnt, totalCnt){
+
+};
+
+
+const getRequestTranslatePapago = function ( data,  getRequestCallBack ){
+//console.log("data");
+
+	let client_id = 'lXcYqHZGWz8A0zEy5_00';
+	let client_secret = '0HejW2Rynn';
+	let url = "https://openapi.naver.com/v1/papago/n2mt";
+
+	var queryText = data.split("</p");
+        var sourceLanguage = "en";
+        var targetLanguage = "ko";
+
+        var options = {
+                url: url,
+                form: {'source': sourceLanguage, 'target': targetLanguage, 'text': queryText[0]},
+                headers: {'X-Naver-Client-Id':client_id, 'X-Naver-Client-Secret': client_secret}
+        };
+
+	console.log("text is ::: " + queryText[0]);
+
+        //https.get(options, function(response) {
+	request.post(options, function (error, response, body) {
+		console.log(response.statusCode);
+		 if (!error && response.statusCode == 200) {
+                        var jsonData = JSON.parse(body);
+                        //console.log("translate jsonData is :: " + JSON.stringify(jsonData));
+                        var resData = {}
+                        resData.success = 'Y';
+                        resData.translateData = jsonData.message.result.translatedText;
+			console.log(resData.translateData);
+
+                } else {
+                        //res.status(response.statusCode).end();
+                        console.log('error = ' + response.statusCode);
+                }
+
+	});
+}
+

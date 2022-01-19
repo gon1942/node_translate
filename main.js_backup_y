@@ -1,0 +1,142 @@
+//const db = require("./database/db");
+
+var zlib = require("zlib");
+var https = require('https');
+var fs = require('fs');
+
+const pg = require('pg');
+const R = require('ramda');
+
+const cs = 'postgres://ryan:exitem08@192.168.0.2:5432/ryan';
+
+const client = new pg.Client(cs);
+client.connect();
+
+
+//client.query('select * from tbl_stack_data').then(res => {
+//
+//    const result = R.head(R.values(R.head(res.rows)));
+//
+//    console.log(result);
+//}).finally(() => client.end());
+
+
+var url = "https://api.stackexchange.com/2.2/questions?page=1&pagesize=5&order=desc&sort=votes&tagged=ubuntu&site=stackoverflow&filter=!-n6h_tKlFVeecyArvkbFShIHm7ljZ7o5voxGEDUzKIn3xx0fx--RBH";
+
+https.get(url, function(response) {
+    if (response.statusCode == 200) {
+        var gunzip = zlib.createGunzip();
+        var jsonString = '';
+
+        response.pipe(gunzip);
+        gunzip.on('data', function(chunk) {
+            jsonString += chunk;
+        });
+
+        gunzip.on('end', function() {
+            //parseJson(jsonString, bot, message);
+		//console.log(jsonString);
+	
+		let obj = JSON.parse(jsonString);
+
+		console.log("===========================================+");
+                console.log("length---" +  Object.keys(obj.items).length);
+
+		let fileData = "";
+		let cnt=0, cntAnswer=0;
+		for (const key of obj.items) { 
+			cnt++;
+			console.info("==================questions=====================");
+			// answers 
+			//console.log("----" + JSON.stringify(key.answers));
+			//
+			//questions
+			//console.log("----" + JSON.stringify(key.questions));
+			//console.log(key.page);
+			//
+			
+
+			//console.log("owner----" + JSON.stringify(key.owner));
+			//console.log("question_id----" + JSON.stringify(key.question_id));
+			//console.log("link----" + JSON.stringify(key.link));
+			//console.log("title----" + JSON.stringify(key.title));
+			//console.log("body----" + JSON.stringify(key.body));
+
+
+			//fileData += "===========question=========="
+			//fileData += "question id is :" + JSON.stringify(key.question_id);
+			//fileData += "title is : " + JSON.stringify(key.title);
+			//fileData += "body is :" + JSON.stringify(key.body);
+
+
+			const sql = 'insert into tbl_stack_data (owner, question_id, link, title, body) values( $1, $2, $3, $4, $5) ';
+                        const values = [key.owner, key.question_id, key.link, key.title, key.body];
+
+                        client.query(sql, values, (err, res) => {
+                              	if (err) {
+                                	console.log(err.stack);
+                              	} else {
+                                	console.log("question ==="+ key.question_id);
+                             	}
+
+                        });
+
+			var answersTmp = JSON.stringify(key.answers);
+			var ansObj = JSON.parse(answersTmp);
+			//console.log(JSON.stringify(ansObj[0]));
+			
+			console.log("length--answer-" +  Object.keys(key.answers).length);
+			for (const ansKey of key.answers) { 
+				cntAnswer++;
+				const sqlAnswer = 'insert into tbl_stack_answer (owner_user_id, answer_id, question_id, title, body) values( $1, $2, $3, $4, $5) ';
+                        	const valuesAnswer = [ansKey.owner.user_id, ansKey.answer_id, ansKey.question_id, ansKey.title, ansKey.body];
+
+                        	client.query(sqlAnswer, valuesAnswer, (err, res) => {
+                        	        if (err) {
+                        	                console.log(err.stack);
+                        	        } else {
+                        	                console.log("answer =="+ ansKey.answer_id);
+                        	        }
+
+                        	});
+
+			//	console.log("==============answers============");
+			//	console.log("answer owner.user_id=== "+ansKey.owner.user_id);
+			//	console.log("answer answer_id=== "+ansKey.answer_id);
+			//	console.log("answer question_id=== "+ansKey.question_id);
+			//	console.log("answer title=== "+ansKey.title);
+			//	console.log("answer body=== "+ansKey.body);
+
+			//	fileData +="===========answer=========";
+			//	fileData += "answer question id is :" + ansKey.question_id;
+			//	fileData += "answer answer id is : " + ansKey.answer_id ;
+			//	fileData += "answer title is : " + ansKey.title;
+			//	fileData += "answer body iis : " + ansKey.body ;
+			}
+
+			fileData += "#######################";
+			console.info("##################################################");
+		}
+
+
+
+		//console.log("----------");
+		////fs.writeFile('jsondata.json', jsonString, 'utf8', function(err) {
+		//fs.writeFile('jsondata.json', fileData, 'utf8', function(err) {
+		//    console.log('비동기적 파일 쓰기 완료');
+		//});
+console.log("=======================++>" + cnt +"=="+ cntAnswer);
+
+
+        });
+
+        gunzip.on('error', function(e) {
+            console.log("Error while parsing SOF response");
+            botErrorHandler(e, bot, message)
+        });
+
+    } else {
+        console.log(response);
+        console.log("Error - While parsing SOF response. Response.statusCode: " + response.statusCode);
+    }
+});

@@ -1,0 +1,146 @@
+2021-07-16 00:01:45 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 390
+2021-07-16 00:01:45 [INFO] - data row seq is ::: 1003
+2021-07-16 00:01:46 [INFO] - limit cnt  is 390
+2021-07-16 00:01:46 [INFO] - seq is 1003
+2021-07-16 00:01:46 [INFO] - question id is 13593771
+2021-07-16 00:01:46 [INFO] - is_accepted is true
+2021-07-16 00:01:46 [INFO] - answer_id is 13593790
+2021-07-16 00:01:46 [INFO] - body is p 5초마다 시청...</p>
+2021-07-16 00:11:46 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 391
+2021-07-16 00:11:46 [INFO] - data row seq is ::: 1004
+2021-07-16 00:11:46 [INFO] - limit cnt  is 391
+2021-07-16 00:11:46 [INFO] - seq is 1004
+2021-07-16 00:11:46 [INFO] - question id is 13593771
+2021-07-16 00:11:46 [INFO] - is_accepted is false
+2021-07-16 00:11:46 [INFO] - answer_id is 13593807
+2021-07-16 00:11:46 [INFO] - body is <pre><code true일 때; 하기
+    5번 자다
+    ls -l
+끝나다
+</코드></p>
+2021-07-16 00:21:46 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 392
+2021-07-16 00:21:46 [INFO] - data row seq is ::: 1005
+2021-07-16 00:21:46 [INFO] - limit cnt  is 392
+2021-07-16 00:21:46 [INFO] - seq is 1005
+2021-07-16 00:21:46 [INFO] - question id is 13593771
+2021-07-16 00:21:46 [INFO] - is_accepted is false
+2021-07-16 00:21:46 [INFO] - answer_id is 13594116
+2021-07-16 00:21:46 [INFO] - body is p 다음을 실행하고 크기만 필터링할 수 있습니다. 파일 이름이 코드인 경우 다음을 수행할 수 있습니다.</p>
+2021-07-16 00:31:46 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 393
+2021-07-16 00:31:46 [INFO] - data row seq is ::: 1006
+2021-07-16 00:31:47 [INFO] - limit cnt  is 393
+2021-07-16 00:31:47 [INFO] - seq is 1006
+2021-07-16 00:31:47 [INFO] - question id is 13593771
+2021-07-16 00:31:47 [INFO] - is_accepted is false
+2021-07-16 00:31:47 [INFO] - answer_id is 13595083
+2021-07-16 00:31:47 [INFO] - body is <p> "watch"(시계)는 Busybox(바쁨)에서 1초도 허용하지 않는 반면, "sleep"(절전)은 1초도 허용하지 않습니다. 귀하에게 중요한 사항이 있다면, 다음을 시도해 보십시오.</p>
+2021-07-16 00:41:47 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 394
+2021-07-16 00:41:47 [INFO] - data row seq is ::: 1007
+2021-07-16 00:41:48 [INFO] - limit cnt  is 394
+2021-07-16 00:41:48 [INFO] - seq is 1007
+2021-07-16 00:41:48 [INFO] - question id is 13593771
+2021-07-16 00:41:48 [INFO] - is_accepted is false
+2021-07-16 00:41:48 [INFO] - answer_id is 17350229
+2021-07-16 00:41:48 [INFO] - body is p 특정 횟수만큼 작업을 수행하려는 경우 항상 다음을 수행할 수 있습니다.</p>
+2021-07-16 00:51:48 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 395
+2021-07-16 00:51:48 [INFO] - data row seq is ::: 1008
+2021-07-16 00:51:48 [INFO] - limit cnt  is 395
+2021-07-16 00:51:48 [INFO] - seq is 1008
+2021-07-16 00:51:48 [INFO] - question id is 13593771
+2021-07-16 00:51:48 [INFO] - is_accepted is false
+2021-07-16 00:51:48 [INFO] - answer_id is 19342925
+2021-07-16 00:51:48 [INFO] - body is </code를 사용하는 동안 cron 없이 명령을 주기적으로 실행할 수 있습니다.</p>
+2021-07-16 01:01:48 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 396
+2021-07-16 01:01:48 [INFO] - data row seq is ::: 1009
+2021-07-16 01:01:49 [INFO] - limit cnt  is 396
+2021-07-16 01:01:49 [INFO] - seq is 1009
+2021-07-16 01:01:49 [INFO] - question id is 13593771
+2021-07-16 01:01:49 [INFO] - is_accepted is false
+2021-07-16 01:01:49 [INFO] - answer_id is 19770219
+2021-07-16 01:01:49 [INFO] - body is p "드리프팅"을 피하려면, 명령의 소요 시간(N초 미만 소요)에 관계없이 명령을 N초마다 실행하도록 해야 합니다. 다음은 1초 정확도로 명령을 5초마다 반복하는 몇 가지 bash입니다(지속할 수 없으면 경고를 출력합니다).</p>
+2021-07-16 01:11:49 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 397
+2021-07-16 01:11:49 [INFO] - data row seq is ::: 1010
+2021-07-16 01:11:49 [INFO] - limit cnt  is 397
+2021-07-16 01:11:49 [INFO] - seq is 1010
+2021-07-16 01:11:49 [INFO] - question id is 13593771
+2021-07-16 01:11:49 [INFO] - is_accepted is false
+2021-07-16 01:11:49 [INFO] - answer_id is 34316685
+2021-07-16 01:11:49 [INFO] - body is <p> 명령에 파이프 및 따옴표와 같은 특수 문자가 포함된 경우 명령에 따옴표를 채워야 합니다. 예를 들어, codels | grep "txt"[code]를 반복하려면 watch 명령은 다음과 같아야 합니다.</p>
+2021-07-16 01:21:49 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 398
+2021-07-16 01:21:49 [INFO] - data row seq is ::: 1011
+2021-07-16 01:21:49 [INFO] - limit cnt  is 398
+2021-07-16 01:21:49 [INFO] - seq is 1011
+2021-07-16 01:21:49 [INFO] - question id is 13593771
+2021-07-16 01:21:49 [INFO] - is_accepted is false
+2021-07-16 01:21:49 [INFO] - answer_id is 36322871
+2021-07-16 01:21:49 [INFO] - body is <시계는 좋지만 화면을 청소할 것이다.</p>
+2021-07-16 01:31:49 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 399
+2021-07-16 01:31:49 [INFO] - data row seq is ::: 1012
+2021-07-16 01:31:50 [INFO] - limit cnt  is 399
+2021-07-16 01:31:50 [INFO] - seq is 1012
+2021-07-16 01:31:50 [INFO] - question id is 13593771
+2021-07-16 01:31:50 [INFO] - is_accepted is false
+2021-07-16 01:31:50 [INFO] - answer_id is 42751587
+2021-07-16 01:31:50 [INFO] - body is 절전 모드는 이미 0을 반환합니다. 따라서 다음을 사용합니다.</p>
+2021-07-16 01:41:50 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 400
+2021-07-16 01:41:50 [INFO] - data row seq is ::: 1013
+2021-07-16 01:41:50 [INFO] - limit cnt  is 400
+2021-07-16 01:41:50 [INFO] - seq is 1013
+2021-07-16 01:41:50 [INFO] - question id is 13593771
+2021-07-16 01:41:50 [INFO] - is_accepted is false
+2021-07-16 01:41:50 [INFO] - answer_id is 46220917
+2021-07-16 01:41:50 [INFO] - body is p 드리프트를 보다 쉽게 최소화하려면 다음을 사용합니다.</p>
+2021-07-16 01:51:50 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 401
+2021-07-16 01:51:50 [INFO] - data row seq is ::: 1014
+2021-07-16 01:51:50 [INFO] - limit cnt  is 401
+2021-07-16 01:51:50 [INFO] - seq is 1014
+2021-07-16 01:51:50 [INFO] - question id is 13593771
+2021-07-16 01:51:50 [INFO] - is_accepted is false
+2021-07-16 01:51:50 [INFO] - answer_id is 47349093
+2021-07-16 01:51:50 [INFO] - body is <pre <코드>시계 -n 5'ls -l 
+</코드></p>
+2021-07-16 02:01:50 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 402
+2021-07-16 02:01:50 [INFO] - data row seq is ::: 1015
+2021-07-16 02:01:51 [INFO] - limit cnt  is 402
+2021-07-16 02:01:51 [INFO] - seq is 1015
+2021-07-16 02:01:51 [INFO] - question id is 13593771
+2021-07-16 02:01:51 [INFO] - is_accepted is false
+2021-07-16 02:01:51 [INFO] - answer_id is 57322526
+2021-07-16 02:01:51 [INFO] - body is p명료한 솔루션으로, 명령이 실패할 때까지 명령을 반복적으로 실행하려는 경우에 특히 유용하며 모든 출력을 볼 수 있습니다.</p>
+2021-07-16 02:11:51 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 403
+2021-07-16 02:11:51 [INFO] - data row seq is ::: 1016
+2021-07-16 02:11:51 [INFO] - limit cnt  is 403
+2021-07-16 02:11:51 [INFO] - seq is 1016
+2021-07-16 02:11:51 [INFO] - question id is 7739645
+2021-07-16 02:11:51 [INFO] - is_accepted is false
+2021-07-16 02:11:51 [INFO] - answer_id is 7740393
+2021-07-16 02:11:51 [INFO] - body is p 이거면 될 거야</p>
+2021-07-16 02:21:51 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 404
+2021-07-16 02:21:51 [INFO] - data row seq is ::: 1017
+2021-07-16 02:21:52 [INFO] - limit cnt  is 404
+2021-07-16 02:21:52 [INFO] - seq is 1017
+2021-07-16 02:21:52 [INFO] - question id is 7739645
+2021-07-16 02:21:52 [INFO] - is_accepted is true
+2021-07-16 02:21:52 [INFO] - answer_id is 7740571
+2021-07-16 02:21:52 [INFO] - body is <pre><suddebconf-set-selections &lt;&lt; 'sword-server mysql-server/root_password password your_password'
+sudo debconf-set-selections &lt;&lt; 'sudo-server mysql-server/root_password_again password your_password'
+sudo apt-get-y install mysql-server
+</코드></p>
+2021-07-16 02:31:52 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 405
+2021-07-16 02:31:52 [INFO] - data row seq is ::: 1018
+2021-07-16 02:31:52 [INFO] - limit cnt  is 405
+2021-07-16 02:31:52 [INFO] - seq is 1018
+2021-07-16 02:31:52 [INFO] - question id is 7739645
+2021-07-16 02:31:52 [INFO] - is_accepted is false
+2021-07-16 02:31:52 [INFO] - answer_id is 20037235
+2021-07-16 02:31:52 [INFO] - body is p 또 다른 작동 방법:</p>
+2021-07-16 02:41:52 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 406
+2021-07-16 02:41:52 [INFO] - data row seq is ::: 1019
+2021-07-16 02:41:52 [INFO] - limit cnt  is 406
+2021-07-16 02:41:52 [INFO] - seq is 1019
+2021-07-16 02:41:52 [INFO] - question id is 7739645
+2021-07-16 02:41:52 [INFO] - is_accepted is false
+2021-07-16 02:41:52 [INFO] - answer_id is 44817118
+2021-07-16 02:41:52 [INFO] - body is p 사용:</p>
+2021-07-16 02:51:52 [INFO] - sql---select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset 407
+2021-07-16 02:51:52 [INFO] - data row seq is ::: 1020
