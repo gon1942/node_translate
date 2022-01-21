@@ -1,11 +1,12 @@
 module.exports = (function () {
   return {
     local: { // localhost
-	host     : '192.168.0.118',
-	user     : 'ryan',
-	password : '1234',
+	host     : '192.168.0.18',
+	// host     : '192.168.0.118',
+	user     : 'de',
+	password : 'exitem0*',
 	port     : 5432,
-	database : 'ask_db'
+	database : 'decommunity'
     },
     //real: { // real server db info
     //    host     : '192.168.0.2'

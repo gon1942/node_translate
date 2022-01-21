@@ -4,7 +4,9 @@ class ConstTranslate {
         this.toolName = '';
         this.toolUsed = '';
         this.toolCount = 0;
-        this.rowDataLimit = 1;
+        this.rowDataLimit = 0;
+        this.rowDataInfo = '';
+        this.isChkTrans = false;
     }
     setTransTool( name, used){
         this.toolName = name;
@@ -22,7 +24,7 @@ const constHandler = new ConstTranslate();
 
 // 번역 툴]
 const transTool = [
-    { name:"papago",status:"Y"},
+    { name:"papago",status:"N"},
     { name: "google", status:"Y"},
     { name:"libreoffice",status:"N"}
 ];

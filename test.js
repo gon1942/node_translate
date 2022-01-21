@@ -12,6 +12,8 @@ const shell = require('shelljs')
 const transConfig = require('./constructor');
 
 
+let retTransDatamap = new Map();
+
 
 // 이거 쓸까나..?==========================================[[[[[[[]]]]]]]
 var moment = require('moment');
@@ -45,6 +47,85 @@ const getRowsCntData = function () {
 
 }
 //getRowsCntData( );
+
+const getRowsDataFromDB = function (limitCnt) {
+
+  const sql = 'select seq, is_accepted, score, answer_id, question_id, body, ins_date from tbl_stack_answer order by seq asc limit 1 offset ' + limitCnt;
+  log.info("sql---" + sql);
+
+  //client.query(sql, values, (err, res) => {
+  client.query(sql, (err, ret) => {
+    if (err) {
+      log.info(err.stack);
+    } else {
+
+      //total rows count
+      var bodyData = ret.rows[0].body;
+      var bodyDataSplit = bodyData.split("<p>");
+      //console.log("row cnt is ::: "+ bodyDataSplit.length);
+
+      translateAction(ret.rows, limitCnt);
+
+    }
+  });
+
+}
+
+function insertTransData(_data) {
+  console.log("insert=====================");
+  let dataInfo = transConfig.constHandler.rowDataInfo;
+  let updateSql = '';
+  let updateValues = '';
+
+
+
+  //origin row data infot 
+  log.info(`seq is [${dataInfo.seq}]`);
+  log.info(`question_id  is [${dataInfo.question_id}]`);
+  // log.info(`body  is [${_data}]`);
+  log.info(`tr_status_title is [${dataInfo.tr_status_title}]`);
+  log.info(`tr_status_body is [${dataInfo.tr_status_body}]`);
+  log.info(`answer_count is [${dataInfo.answer_count}]`);
+  log.info(`accepted_answer_id is [${dataInfo.is_answered}]`);
+  log.info(`tr_status_body id is [${dataInfo.tag}]`);
+  log.info(`tr_status_body id is [${dataInfo.ins_date}]`);
+  log.info(`tr_status_body id is [${dataInfo.taggubun}]`);
+
+  if (dataInfo.tr_status_title == false) {
+    dbHandler.updateQuestion(_data, dataInfo.seq, 'title');
+  } else if (dataInfo.tr_status_body == false) {
+    dbHandler.updateQuestion(_data, dataInfo.seq, 'body');
+  }
+
+}
+function insertTransData2(rowsSeq, question_id, is_Accepted, answer_id, body, limitCnt) {
+  log.info("limit cnt  is " + limitCnt);
+  log.info("seq is " + rowsSeq);
+  log.info("question id is " + question_id);
+  log.info("is_accepted is " + is_Accepted);
+  log.info("answer_id is " + answer_id);
+  log.info("body is " + body);
+
+  const sql = 'insert into tbl_stack_answer_ko (base_seq, answer_id, question_id, body, ins_date) values( $1, $2, $3, $4, now() ) ';
+  const values = [rowsSeq, answer_id, question_id, body];
+
+  client.query(sql, values, (err, res) => {
+    if (err) {
+      log.info(err);
+    } else {
+      //log.info(JSON.stringify(res));
+      //setTimeout(() => { getRowsData( ++limitCnt ); }, 6000);
+      setTimeout(() => {
+        getRowsData(++limitCnt);
+      }, 600000); //10m
+    }
+  });
+
+  //	}
+}
+
+
+
 // 이거 쓸까나..?==========================================[[[[[[[[[]]]]]]]]]
 
 
@@ -53,50 +134,26 @@ let getRequestCallBack = function (pagecnt, questionCnt, answersCnt, totalCnt) {
 };
 
 
-var tmpArray = new Array(); // 테그 기준으로 문자열을 배열에 저장
+var dataConvertArray = new Array(); // 테그 기준으로 문자열을 배열에 저장
 let dataRowCount = 0;
 let tmpTransData = new Array();
 
 
-const getRowsData222 = async function (rowDataLimit) {
 
-  const data = fs.readFileSync('./sample.txt', {
-    encoding: 'utf8',
-    flag: 'r'
-  });
-
-
-  console.log("\r\nStart - Trans ] ##############################################");
-
-  // translateAction(data, rowDataLimit);
-
-  // h, p, ul 테그는  번역기를 이용한다. 그외 태그는 통과
-  let aabt = await test(data, dataRowCount);
-  console.log("---@@@@@@@@@@@@@@@@@@@@@@@@22---@@@--------" + aabt.length);
-  for (var i in aabt) {
-    console.log(i + "==========>" + aabt[i]);
-    console.log("\r\n");
-  }
-
-  console.log("------#################################--###------");
-
-}
-
-
-function test(data, dataRowCount) {
-  // console.log("#################3");
+/**
+ * 번역 대상 텍스트 문구에서 Html tag을 기준으로 번역 문구 판별.
+ * @param {} data 
+ * @param {*} dataRowCount 
+ * @returns 
+ */
+function dataConvert(data, dataRowCount) {
+  // console.log("################# dataConvert==========> " + data);
 
   let stTag = data.indexOf("<");
   let endTag = data.indexOf(">")
-
-
   let tagName = data.substr((stTag + 1), (endTag - 1));
-  // console.log(dataRowCount + "] ---tagName=========++" + tagName);
-  // console.log("\r\n\r\n");
-
 
   if (tagName.length > 0) {
-
 
     let findStTagNm = "<" + tagName + ">";
     let findEndTagNm = "</" + tagName + ">";
@@ -116,13 +173,13 @@ function test(data, dataRowCount) {
     tagStNameNumber = data.indexOf(findStTagNm);
     tagEndNameNumber = data.indexOf(findEndTagNm);
 
-    console.log("::: chk tag Info ::: stat name & index>>------------------------tagStName===" + findStTagNm + '===' + tagStNameNumber);
-    console.log("::: chk tag Info ::: end name * index >>------------------------tagEndName===" + findEndTagNm + '===' + tagEndNameNumber);
+    console.log("::: chk tag Info ::: stat name & index>>------------------------tagStName===" + findStTagNm + '(' + tagStNameNumber + ')-' + findEndTagNm + '(' + tagEndNameNumber + ')');
+    // console.log("::: chk tag Info ::: end name * index >>------------------------tagEndName===" + findEndTagNm + '===' + tagEndNameNumber);
 
     let tagBody = data.substr(tagStNameNumber, tagEndNameNumber) + findEndTagNm;
     let tmpData = data.substring(tagEndNameNumber + findEndTagNm.length).trim();
 
-    tmpArray[dataRowCount] = tagBody;
+    dataConvertArray[dataRowCount] = tagBody;
 
     dataRowCount = dataRowCount + 1;
     // console.log("################ ] tagBody---------------------------------------------------------------------");
@@ -130,16 +187,18 @@ function test(data, dataRowCount) {
     // console.log("################] tmpData-------------------------------------------------------------------");
     // console.log("tmpData====================>>>>>\r\n" + tmpData);
     // console.log(dataRowCount - 1 + "]  END----- [" + tagName + "]--------\r\n\r\n\r\n");
-    test(tmpData, dataRowCount);
+    dataConvert(tmpData, dataRowCount);
 
+  } else {
+    dataConvertArray[0] = data;
   }
 
 
-  return tmpArray;
+  return dataConvertArray;
 }
 
 
-//const translateAction = async( rowsData ) => {
+// 사용안함
 async function translateAction(rowsData, rowDataLimit) {
 
 
@@ -240,8 +299,9 @@ async function translateAction(rowsData, rowDataLimit) {
   console.log(" translate End ====> now row data limit number is " + (rowDataLimit - 1));
   // getRowsData(rowDataLimit);
 }
-let retTransDatamap = new Map();
 
+
+// 에러 코드 관리
 function fn_errCheck(_val) {
   switch (_val) {
     case '010':
@@ -253,47 +313,69 @@ function fn_errCheck(_val) {
       retTransDatamap.set('status', 'Y');
       retTransDatamap.set('data', _val);
       return retTransDatamap;
-      // default: consterrormag.msg = "succcess";  consterrormag.val ='Y'; return consterrormag;
+    // default: consterrormag.msg = "succcess";  consterrormag.val ='Y'; return consterrormag;
   }
 
 }
 
+
+/**
+ * 번역
+ * @param {*} data 
+ * @param {*} gubun 
+ * @param {*} getRequestCallBack 
+ * @returns 
+ */
 function getRequestTranslate(data, gubun, getRequestCallBack) {
   return new Promise(function (resolve, reject) {
-
     if ('google' === transConfig.constHandler.getTrandTool()) {
-      let errcode = '';
-      // //비동기 파일 쓰기, 
-      fs.writeFile('./trans.txt', data, function (err) {
-        if (err) {
-          console.log('error : ' + err);
-          return;
-        }
+      // let errcode = '';
+      // // //비동기 파일 쓰기, 
+      // fs.writeFile('./trans.txt', data, function (err) {
+      //   if (err) {
+      //     console.log('error : ' + err);
+      //     return;
+      //   }
 
-        const {
-          exec
-        } = require("child_process");
+      //   const {
+      //     exec
+      //   } = require("child_process");
 
-        exec("/bin/bash trans file://trans.txt", (error, stdout, stderr) => {
-          if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-          }
-          if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            if (stderr.indexOf("limit")) {
-              errcode = '010'
-            }
-            resolve(errcode);
+      //   exec("/bin/bash trans file://trans.txt", (error, stdout, stderr) => {
+      //     if (error) {
+      //       console.log(`error: ${error.message}`);
+      //       return;
+      //     }
+      //     if (stderr) {
+      //       console.log(`stderr: ${stderr}`);
+      //       if (stderr.indexOf("limit")) {
+      //         errcode = '010'
+      //       }
+      //       resolve(errcode);
 
-          } else {
-            // console.log(`stdout: ${stdout}`);
-            resolve(stdout);
-          }
-        });
+      //     } else {
+      //       // console.log(`stdout: ${stdout}`);
+      //       resolve(stdout);
+      //     }
+      //   });
+      // });
 
+
+      // version 2
+      const translate = require('google-translate-api'); //require('@vitalets/google-translate-api');
+      var queryText = data;
+      var sourceLanguage = "en";
+      var targetLanguage = "ko";
+
+      // console.log("data text is ::: " + queryText);
+
+      translate(queryText, {
+        to: 'ko'
+      }).then(res => {
+        resolve(res.text);
+      }).catch(err => {
+        console.error(err);
       });
-
 
     } else if ('papago' === transConfig.constHandler.getTrandTool()) {
 
@@ -318,7 +400,6 @@ function getRequestTranslate(data, gubun, getRequestCallBack) {
         }
       };
 
-      console.log("papago data is 0000 ::: " + data);
       request.post(options, function (error, response, body) {
 
         var jsonData = JSON.parse(body);
@@ -345,6 +426,9 @@ function getRequestTranslate(data, gubun, getRequestCallBack) {
 
 
 
+
+
+// 사용안함
 function getRequestTranslateGoogle(data, getRequestCallBack) {
   return new Promise(function (resolve, reject) {
 
@@ -383,7 +467,9 @@ function getRequestTranslateGoogle(data, getRequestCallBack) {
 }
 
 
-//const getRequestTranslatePapago = function ( data,  getRequestCallBack ){
+
+
+// 사용안함
 function getRequestTranslatePapago(queryText, getRequestCallBack) {
   return new Promise(function (resolve, reject) {
     let client_id = transConfig.papagoHandler.client_id;
@@ -430,38 +516,113 @@ function getRequestTranslatePapago(queryText, getRequestCallBack) {
 }
 
 
-function insertTransData(rowsSeq, question_id, is_Accepted, answer_id, body, limitCnt) {
-  log.info("limit cnt  is " + limitCnt);
-  log.info("seq is " + rowsSeq);
-  log.info("question id is " + question_id);
-  log.info("is_accepted is " + is_Accepted);
-  log.info("answer_id is " + answer_id);
-  log.info("body is " + body);
+// function sleep(time) {
+//   var stop = new Date().getTime();
+//   while (new Date().getTime() < stop + time) {
+//     ;
+//   }
+// }
 
-  const sql = 'insert into tbl_stack_answer_ko (base_seq, answer_id, question_id, body, ins_date) values( $1, $2, $3, $4, now() ) ';
-  const values = [rowsSeq, answer_id, question_id, body];
 
-  client.query(sql, values, (err, res) => {
-    if (err) {
-      log.info(err);
+
+let arrTransData = new Array();
+async function actionTransText(getRowData) {
+
+  console.log(transConfig.constHandler.getTrandTool() + "--trans start] ###############################################");
+
+  for (var i in getRowData) {
+
+    let findStTagNm = getRowData[i].substring();
+    let stTag = getRowData[i].indexOf("<");
+    let endTag = getRowData[i].indexOf(">")
+    let tagName = getRowData[i].substr((stTag + 1), (endTag - 1));
+    if (tagName.length > 0) {
+
+      let findStTagNm = "<" + tagName + ">";
+      let findEndTagNm = "</" + tagName + ">";
+
+      if (findStTagNm.indexOf("<p>") >= 0 || findStTagNm.indexOf("h1") >= 0) { // || findStTagNm.indexOf("ul") >= 0
+        // console.log("\r\n ---"+i+"--- ::: 번역 대상 텍스트 :::  START ##############");
+        // console.log(getRowData[i]);
+        // console.log("\r\n ::: 텍스트 HTML replace :::  START ##############");
+        // console.log(getRowData[i].replace(/(<([^>]+)>)/ig, ""));
+
+
+
+        let retTmpMap = new Map();
+        retTmpMap = fn_errCheck(await getRequestTranslate(getRowData[i].replace(/(<([^>]+)>)/ig, ""), getRequestCallBack));
+        // console.log("##############retTmpMap###################");
+        // console.log("\r\n ---"+i+"--- ::: 번역 결과 텍스트 :::  ##############" );
+        // console.log(retTmpMap +"\r\n\r\n");
+        // console.log("##############retTmpMap###################");
+
+        if (retTmpMap.get("status") != 'Y') {
+
+          if (translateTool.length - 1 != transConfig.constHandler.toolCount) {
+            transConfig.constHandler.setTransTool(translateTool[transConfig.constHandler.toolCount + 1], 'Y');
+            rowDataLimit = transConfig.constHandler.rowDataLimit;
+            return actionTransText(getRowData);
+          } else {
+            rowDataLimit = transConfig.constHandler.rowDataLimit + 1;
+            return actionTransText(getRowData);
+          }
+
+        } else {
+          if (findStTagNm.indexOf("<p>") >= 0) {
+            arrTransData[i] = '<p>' + retTmpMap.get('data').trim() + '</p>';
+          } else if (findStTagNm.indexOf("h1") >= 0) {
+            arrTransData[i] = '<h1>' + retTmpMap.get('data').trim() + '</h1>';
+          } else if (findStTagNm.indexOf("ul") >= 0) {
+            arrTransData[i] = '<ul>' + retTmpMap.get('data').trim() + '</ul>';
+          }
+        }
+
+      } else {
+        // console.log("\r\n ---"+i+"---::: 번역 대상 텍스트 아님:::  ##############");
+        arrTransData[i] = getRowData[i];
+      }
     } else {
-      //log.info(JSON.stringify(res));
-      //setTimeout(() => { getRowsData( ++limitCnt ); }, 6000);
-      setTimeout(() => {
-        getRowsData(++limitCnt);
-      }, 600000); //10m
+      let retTmpMap = new Map();
+      retTmpMap = fn_errCheck(await getRequestTranslate(getRowData[i].replace(/(<([^>]+)>)/ig, ""), getRequestCallBack));
+      // console.log("##############retTmpMap###################");
+      // console.log("\r\n ---"+i+"--- ::: 번역 결과 텍스트 :::  ##############" );
+      // console.log(retTmpMap +"\r\n\r\n");
+      // console.log("##############retTmpMap###################");
+
+      if (retTmpMap.get("status") != 'Y') {
+
+        if (translateTool.length - 1 != transConfig.constHandler.toolCount) {
+          transConfig.constHandler.setTransTool(translateTool[transConfig.constHandler.toolCount + 1], 'Y');
+          rowDataLimit = transConfig.constHandler.rowDataLimit;
+          return actionTransText(getRowData);
+        } else {
+          rowDataLimit = transConfig.constHandler.rowDataLimit + 1;
+          return actionTransText(getRowData);
+        }
+
+      } else {
+        arrTransData[0] = '<p>' + retTmpMap.get('data').trim() + '</p>';
+      }
     }
-  });
-
-  //	}
-}
-
-function sleep(time) {
-  var stop = new Date().getTime();
-  while (new Date().getTime() < stop + time) {
-    ;
   }
+
+  console.log(transConfig.constHandler.getTrandTool() + "--trans END] #########################################################################################################################");
+  let strTransData = '';
+  for (var i in arrTransData) {
+    // console.log(i + '-=--------' + arrTransData[i]);
+    strTransData += arrTransData[i] + '\r\n';
+  }
+  transConfig.constHandler.isChkTrans = true;
+  console.log(strTransData);
+
+  console.log(transConfig.constHandler.isChkTrans);
+
+  // insertTransData(rowsSeq, rowsQuestion_id, rowsIs_Accepted, rowsAnswer_id, rowsBody, rowDataLimit);
+  insertTransData(strTransData);
+
 }
+
+
 
 
 
@@ -473,23 +634,17 @@ console.log("\r\nTranslate Init Data Info]  ###################");
 
 // Available Tools
 let translateTool = new Array();
-// console.log("transConfig.transTool============");
-// console.log(transConfig.constHandler);
-
-
-// transConfig.constHandler.setTransTool('papago', 'Y');
-// console.log("get tool name and used is "+ transConfig.constHandler.getTrandTool());
 
 console.log(">> Total Translate Tools is : ");
 // 사용가능한 번역툴 확인
+let transArrayCnt = 0;
 for (let ts = 0; ts < transConfig.transTool.length; ts++) {
   console.log(transConfig.transTool[ts]);
   if (transConfig.transTool[ts].status == 'Y') {
-    translateTool[ts] = transConfig.transTool[ts].name;
+    translateTool[transArrayCnt] = transConfig.transTool[ts].name;
+    transArrayCnt++;
   }
 }
-
-
 
 // if( translateTool.length > 1 ){
 // 사용가능한 툴에서 첫번째를 디폴트로 지정
@@ -497,195 +652,68 @@ for (let ts = 0; ts < transConfig.transTool.length; ts++) {
 transConfig.constHandler.setTransTool(translateTool[transConfig.constHandler.toolCount], 'Y');
 // }
 
-
-
-
 console.log("\r\n>> Available Tools :::" + translateTool + ", length is :: " + translateTool.length);
 console.log("\r\n>> Used Translator Tool Name is :: " + transConfig.constHandler.getTrandTool());
 console.log("\r\n>> Trans Tool Used Count is :: " + transConfig.constHandler.toolCount);
 
 let rowDataLimit = transConfig.constHandler.rowDataLimit;
-// getRowsData(rowDataLimit);
-
 
 
 const DbModelHandler = require('./dbHandler');
 const dbHandler = new DbModelHandler();
 // dbHandler.readAll('12578499');
 
+
+
 const getRowsData = async (rowDataLimit) => {
-  // console.log("getRowsData=============+++" + rowDataLimit);
-  // let a = await dbHandler.read(rowDataLimit);
-  // console.log("Start Base Data================+++++");
-  // console.log(a);
-  // console.log("End Base Data================+++++");
+  console.log("getRowsData=============+++" + rowDataLimit);
+  let getOriginData = await dbHandler.read_question(rowDataLimit);
+  console.log("Start Origin Data================+++++");
+  console.log(getOriginData);
+
+  let isAcitons = false;
+
+  if (getOriginData !== null) {
+
+    console.log(
+      `#####get DB Row Data Info is #####\r\n seq Number  : ${getOriginData[0].seq} \r\n question id  : ${getOriginData[0].question_id}  \r\n tr_status_title : ${getOriginData[0].tr_status_title}  \r\n tr_status_body : ${getOriginData[0].tr_status_body} ################\r\n `
+    );
+
+    let dataConvertData = '';
+    // 제목과본문  번역여부 판별
+    // h, p, ul 테그는  번역기를 이용한다. 그외 태그는 통과
+    if (getOriginData[0].tr_status_title == false) {
+      console.log("getOriginData[0].tr_status_title=======+++" + getOriginData[0].tr_status_title);
+      dataConvertData = dataConvert(getOriginData[0].title, dataRowCount);
+      isActions = true;
+    }else if (getOriginData[0].tr_status_body == false) {
+      console.log("getOriginData[0].tr_status_body=======+++" + getOriginData[0].tr_status_body);
+      dataConvertData = dataConvert(getOriginData[0].body, dataRowCount);
+      isActions = true;
+    }
+
+    if (isActions) {
+      // console.log(dataConvertData);
+      transConfig.constHandler.rowDataInfo = getOriginData[0];
+      actionTransText(dataConvertData);
+    }
 
 
-  // if (a !== null) {
-  //   translateAction(a[0].body, rowDataLimit);
-  // } else {
-  //   console.log("get row data exists");
-  // }
 
-//#######################################3
+  } else {
+    console.log("get row data exists");
+  }
 
-// test & dev 
+  //#######################################3
 
-  const data = fs.readFileSync('./sample.txt', {
-    encoding: 'utf8',
-    flag: 'r'
-  });
+  // test & dev 
+  // const data = fs.readFileSync('./sample.txt', {
+  //   encoding: 'utf8',
+  //   flag: 'r'
+  // });
 
+  // console.log("Settings Info End ##############################");
 
-
-  // translateAction(data, rowDataLimit);
-
-  // h, p, ul 테그는  번역기를 이용한다. 그외 태그는 통과
-  let getRowData = test(data, dataRowCount);
-  console.log("---@@@@@@@@@@@@@@@@@@@@@@@@22---@@@--------" + getRowData.length);
-  // for (var i in getRowData) {
-  //   console.log(i + "==========>" + getRowData[i]);
-  //   console.log("\r\n");
-  // }
-
-
-  testTrains(getRowData);
 }
 
 getRowsData(rowDataLimit);
-// getRowsData222(rowDataLimit);
-
-let arrTransData = new Array();
-async function testTrains(getRowData){
-
-  console.log(transConfig.constHandler.getTrandTool() + "--trans start] #########################################################################################################################");
-
-
-  for (var i in getRowData) {
-    console.log(i + "==========>" + getRowData[i]);
-    console.log("\r\n");
-    let findStTagNm = getRowData[i].substring();
-
-    //
-
-    let stTag = getRowData[i].indexOf("<");
-    let endTag = getRowData[i].indexOf(">")
-    // console.log(stTag + "==" + (endTag - 1));
-
-
-    let tagName = getRowData[i].substr((stTag + 1), (endTag - 1));
-    console.log(i + "] ---tagName=========++" + tagName);
-    console.log("\r\n\r\n");
-
-    if (tagName.length > 0) {
-
-      let findStTagNm = "<" + tagName + ">";
-      let findEndTagNm = "</" + tagName + ">";
-
-      if (findStTagNm.indexOf("<p>") >= 0 || findStTagNm.indexOf("h1") >= 0 || findStTagNm.indexOf("ul") >= 0) {
-        console.log("\r\n ::: 번역 대상 텍스트 :::  START ##############");
-        console.log(getRowData[i]);
-        console.log("\r\n ::: 텍스트 HTML replace :::  START ##############");
-        console.log(getRowData[i].replace(/(<([^>]+)>)/ig, ""));
-
-
-
-        let retTmpMap = new Map();
-        retTmpMap = fn_errCheck(await getRequestTranslate(getRowData[i].replace(/(<([^>]+)>)/ig, ""), getRequestCallBack));
-        console.log("##############retTmpMap###################");
-        console.log(retTmpMap);
-        console.log("##############retTmpMap###################");
-        
-        if (retTmpMap.get("status") != 'Y') {
-
-          if (translateTool.length - 1 != transConfig.constHandler.toolCount) {
-            transConfig.constHandler.setTransTool(translateTool[transConfig.constHandler.toolCount + 1], 'Y');
-            rowDataLimit = transConfig.constHandler.rowDataLimit;
-            return testTrains(getRowData);
-          } else {
-            rowDataLimit = transConfig.constHandler.rowDataLimit + 1;
-            return testTrains(getRowData);
-          }
-
-        } else {
-          if(findStTagNm.indexOf("<p>") >= 0){
-            arrTransData[i] = '<p>' + retTmpMap.get('data').trim() +'</p>';
-          }else if( findStTagNm.indexOf("h1") >= 0 ){
-            arrTransData[i] = '<h1>' + retTmpMap.get('data').trim() +'</h1>';
-          }else if( findStTagNm.indexOf("ul") >= 0 ){
-            arrTransData[i] = '<ul>' + retTmpMap.get('data').trim() +'</ul>';
-          }
-        }
-
-      }else{
-        arrTransData[i] = getRowData[i];
-      }
-    }
-  }
-
-  console.log(transConfig.constHandler.getTrandTool() + "--trans END] #########################################################################################################################");
-
-
-  for( var i in arrTransData){
-    console.log(i+'-=--------' + arrTransData[i]);
-  }
-}
-
-/*
-선택한 테그 삭제 ==============================================
-oriText = '<div>Remove Span</div> <span>tag only</span>';
-newText = oriText.replace(/<(\/span|span)([^>]*)>/gi,"");
-============================================================*/
-
-/*
-
-  var htmlRegex = new RegExp("<([A-Za-z][A-Za-z0-9]*)\b[^>]*>(.*?)</\1>");
-  console.log(rowsData);
-  console.log("##################");
-  console.log("htmlRegex===" + htmlRegex.test(rowsData));
-
-  console.log(/<\/?[a-z][\s\S]*>/i.test(rowsData)); // html tag check , return ture,false
-
-
-  // const aa = /<(br|basefont|hr|input|source|frame|param|area|meta|!--|col|link|option|base|img|wbr|!DOCTYPE).*?>|<(a|abbr|acronym|address|applet|article|aside|audio|b|bdi|bdo|big|blockquote|body|button|canvas|caption|center|cite|code|colgroup|command|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frameset|head|header|hgroup|h1|h2|h3|h4|h5|h6|html|i|iframe|ins|kbd|keygen|label|legend|li|map|mark|menu|meter|nav|noframes|noscript|object|ol|optgroup|output|p|pre|progress|q|rp|rt|ruby|s|samp|script|section|select|small|span|strike|strong|style|sub|summary|sup|table|tbody|td|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video).*?<\/\2>/i.test(rowsData) ;
-  const aaRegexp = /<(br|basefont|hr|input|source|frame|param|area|meta|!--|col|link|option|base|img|wbr|!DOCTYPE).*?>|<(a|p|acronym|address|applet|article|aside|audio|b|bdi|bdo|big|blockquote|body|button|canvas|caption|center|cite|code|colgroup|command|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frameset|head|header|hgroup|h1|h2|h3|h4|h5|h6|html|i|iframe|ins|kbd|keygen|label|legend|li|map|mark|menu|meter|nav|noframes|noscript|object|ol|optgroup|output|p|pre|progress|q|rp|rt|ruby|s|samp|script|section|select|small|span|strike|strong|style|sub|summary|sup|table|tbody|td|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video).*?<\/\2>/i;
-
-
-  const aa = /<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/ig.test(rowsData);
-  var regexp = /<(?=.*? .*?\/ ?>|br|hr|input|!--|wbr)[a-z]+.*?>|<([a-z]+).*?<\/\1>/ig;
-  var matches_array = rowsData.match(regexp);
-
-
-
-  // console.log( rowsData.match(/<\/?[a-z][\s\S]*>/i)); 
-
-  console.log(rowsData.indexOf("<") + "==" + rowsData.indexOf(">"));
-  console.log(rowsData.substr(0, (11 + 1)));
-
-
-  // let ta = rowsData.substr(0, 30);
-  // var ar = ta.match(aaRegexp);
-  // console.log(ta);
-  // console.log(ar);
-  // console.log( /<(?=.*? .*?\/ ?>|pre|hr|blockquot|p)[a-z]+.*?>|<([a-z]+).*?<\/\1>/ig.test(ta) );
-
-  // let newHtml = rowsData.replace(/[\n\t ]+/g, " ");
-
-  //     //RegEX to check HTML
-  //     let checkHtml = /<([A-Za-z][A-Za-z0-9]*)\b[^>]*>(.*?)<\/\1>/.test(rowsData);
-
-  //     //Check it is html or not
-  //     if (checkHtml){
-  //         console.log('This is an HTML');
-  //         console.log(newHtml.trim());
-  //     }
-  //     else{
-  //         console.log('This is a TEXT');
-  //         console.log(elem.innerText.trim());
-  //     }
-
-
-  return;
-
-
-*/
