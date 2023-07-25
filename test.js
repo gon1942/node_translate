@@ -15,7 +15,7 @@ const transConfig = require('./constructor');
 let retTransDatamap = new Map();
 
 
-// 이거 쓸까나..?==========================================[[[[[[[]]]]]]]
+// 이거 쓸까나..?========================================================[[[[[[[]]]]]]]
 var moment = require('moment');
 const {
   query
