@@ -1,0 +1,14 @@
+name: Our Jobs
+on: push
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo 'Hello'
+          echo 'GitHub Actions'
+  job2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: ls -al
